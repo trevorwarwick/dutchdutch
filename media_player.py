@@ -1,4 +1,4 @@
-"""Support for Dutch & Dutchspeakers."""
+"""Support for Dutch & Dutch speakers."""
 
 from __future__ import annotations
 
