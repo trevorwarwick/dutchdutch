@@ -1,0 +1,25 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "description": "Host name or fixed IP of one of the Dutch & Dutch speakers.",
+        "data": {
+          "host": "Host"
+        },
+        "data_description": {
+          "host": "Host name or fixed IP address"
+        }
+      },
+      "confirm": {
+          "description": "Do you want to set up Dutch & Dutch speaker (`{title}`)?",
+          "title": "Discovered Dutch & Dutch"
+      }
+    },
+    "error": {
+      "cannot_connect": "cannot connect to that device"
+    },
+    "abort": {
+      "already_configured": "that device is already configured"
+    }
+  }
+}

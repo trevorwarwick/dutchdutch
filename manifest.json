@@ -1,0 +1,12 @@
+{
+    "domain": "dutchdutch",
+    "name": "Dutch & Dutch",
+    "after_dependencies": ["zeroconf"],
+    "codeowners": ["@trevorwarwick"],
+    "config_flow": true,
+    "documentation": "https://github.com/trevorwarwick/dutchdutch",
+    "integration_type": "device",
+    "version": "0.0.1",
+    "iot_class": "local_polling",
+    "zeroconf": ["_x-clerk._tcp.local."]
+}
