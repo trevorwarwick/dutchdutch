@@ -53,3 +53,6 @@ drwxr-xr-x    2 root     root          4096 Dec 13 17:16 translations
 
 Then restart Home Assistant and go to the Devices page within Settings to find
 or add your speakers.
+
+Credit: The basic structure of this integration was inspired by the devialet integration
+by @fwestenberg
