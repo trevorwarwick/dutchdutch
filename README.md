@@ -25,5 +25,5 @@ the "Dutch &amp; Dutch" integration, and just entering a hostname or IPv4 addres
 The integration will always use the identity of the "master" speaker to represent the pair 
 within HA, and will reject the other speaker if you try to configure it as well.
 
-The integratopn needs to be manually installed into the custom_components directory of your 
+The integration needs to be manually installed into the custom_components directory of your 
 Home Assistant installation.
