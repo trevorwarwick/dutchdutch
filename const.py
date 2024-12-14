@@ -1,4 +1,4 @@
-"""Constants for the Devialet integration."""
+"""Constants for the Dutch & DUtch integration."""
 
 from typing import Final
 
