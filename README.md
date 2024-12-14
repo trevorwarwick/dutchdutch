@@ -25,5 +25,31 @@ the "Dutch &amp; Dutch" integration, and just entering a hostname or IPv4 addres
 The integration will always use the identity of the "master" speaker to represent the pair 
 within HA, and will reject the other speaker if you try to configure it as well.
 
-The integration needs to be manually installed into the custom_components directory of your 
-Home Assistant installation.
+The integration currently needs to be manually installed into the custom_components directory of your 
+Home Assistant installation.  I will be attempting to get it installable via HACS in due course. In 
+the meantime, you will need to have SSH access to your Home Assistant system, and manually execute 
+the following commands, or some equivalent:
+
+```
+~ # cd /root/config
+config # mkdir custom_components  # if not already existing
+config # wget https://github.com/trevorwarwick/dutchdutch/archive/refs/heads/main.zip
+config # cd custom_components
+custom_components # unzip ../main.zip
+custom_components # mv dutchdutch-main dutchdutch
+custom_components # ls -l dutchdutch
+-rwxr-xr-x    1 root     root          1070 Dec 14 12:25 __init__.py
+-rwxr-xr-x    1 root     root          3769 Dec 14 12:25 config_flow.py
+-rwxr-xr-x    1 root     root           141 Dec 14 12:25 const.py
+-rwxr-xr-x    1 root     root          1142 Dec 14 12:25 coordinator.py
+-rwxr-xr-x    1 root     root           547 Dec 14 12:25 diagnostics.py
+-rwxr-xr-x    1 root     root         24240 Dec 14 12:25 dutchdutch_api.py
+-rwxr-xr-x    1 root     root           880 Dec 14 12:25 dutchdutch_const.py
+-rwxr-xr-x    1 root     root           365 Dec 13 15:52 manifest.json
+-rwxr-xr-x    1 root     root          7209 Dec 14 12:25 media_player.py
+-rwxr-xr-x    1 root     root           619 Dec 13 17:16 strings.json
+drwxr-xr-x    2 root     root          4096 Dec 13 17:16 translations
+```
+
+Then restart Home Assistant and go to the Devices page within Settings to find
+or add your speakers.
