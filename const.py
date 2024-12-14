@@ -1,4 +1,4 @@
-"""Constants for the Dutch & DUtch integration."""
+"""Constants for the Dutch & Dutch integration."""
 
 from typing import Final
 
