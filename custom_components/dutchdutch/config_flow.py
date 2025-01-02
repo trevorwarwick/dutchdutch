@@ -73,9 +73,11 @@ class DutchDutchFlowHandler(ConfigFlow, domain=DOMAIN):
     async def async_step_zeroconf(
         self, discovery_info: zeroconf.ZeroconfServiceInfo
     ) -> ConfigFlowResult:
-        """Handle a flow initialized by zeroconf discovery. Zeroconf
-        will always find both speakers in a pair, but we only want
-        to show one of them to the user."""
+        """Handle a flow initialized by zeroconf discovery.
+
+        Zeroconf will always find both speakers in a pair, but we only
+        want to show one of them to the user.
+        """
 
         LOGGER.debug("Dutch & Dutch device found via ZEROCONF: %s", discovery_info)
 
@@ -88,8 +90,8 @@ class DutchDutchFlowHandler(ConfigFlow, domain=DOMAIN):
 
         if not await client.async_check_valid() or client.serial is None:
             self._errors["base"] = "cannot_connect"
-            LOGGER.error("Cannot connect during zeroconf")
-            return None
+            LOGGER.debug("Cannot connect during zeroconf")
+            return self.async_abort(reason="cannot_connect")
 
         self._serial = client.serial
         await self.async_set_unique_id(self._serial)

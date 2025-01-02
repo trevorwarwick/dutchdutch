@@ -2,10 +2,11 @@
 from __future__ import annotations
 
 import asyncio
-import re
 import datetime
 import json
+import re
 import uuid
+
 import aiohttp
 
 from .dutchdutch_const import LOGGER, INPUT_TO_SOURCE, MAXGAIN, VALID_STREAMERS
@@ -14,7 +15,7 @@ from .dutchdutch_const import LOGGER, INPUT_TO_SOURCE, MAXGAIN, VALID_STREAMERS
 class DutchDutchApi:
     """Dutch & Dutch API class."""
 
-    def __init__(self, host, session):
+    def __init__(self, host, session) -> None:
         """Initialize the Dutch & Dutch API."""
 
         self._host = host
@@ -45,38 +46,44 @@ class DutchDutchApi:
         self._masterurl = ""
         self._mastertarget = ""
         self._slavetarget = ""
-        self._ipre = re.compile("^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$")
+        self._ipre = re.compile(
+            "^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"
+        )
 
 
     async def getmasterurl(self):
-        """Get the master speaker websocket URL from whichever speaker
-        we were configured with. The master name is used as the unique
-        serial number for the pair. """
+        """Get the master speaker websocket URL from whichever speaker we were configured with.
+
+        The master name is used as the unique serial number for the pair.
+        """
 
         mycmd = self.buildcmd('master', {},
                               method = 'read')
         await self.ws_send_request(mycmd[0])
         data = await self.ws_receive(mycmd[1])
 
-        self._serial = data['data']['name']
-        self._version = data['data']['version']
-        self._mastertarget = data['data']['target']
+        try:
+            self._serial = data['data']['name']
+            self._version = data['data']['version']
+            self._mastertarget = data['data']['target']
+            # this item contains a variable length list of things, one of which
+            # is an IPv4 address.
+            masterip = None
+            respcnt = len(data['data']['address']['ipv4'])
+            for i in range(respcnt):
+                myip = data['data']['address']['ipv4'][i]
+                if bool(re.match(self._ipre, myip)) :
+                    masterip = data['data']['address']['ipv4'][0]
+            if masterip is None :
+                return
+            # sometimes see a 169 address during boot, ignore and wait for a real one
+            if masterip[0:7] == "169.254" :
+                return
+            masterport = str(data['data']['address']['port_ascend'])
+            self._masterurl = "ws://" + masterip + ":" + masterport
 
-        # this item contains a variable length list of things, one of which
-        # is an IPv4 address.
-        masterip = None
-        respcnt = len(data['data']['address']['ipv4'])
-        for i in range(respcnt):
-            myip = data['data']['address']['ipv4'][i]
-            if bool(re.match(self._ipre, myip)) :
-                masterip = data['data']['address']['ipv4'][0]
-        if masterip is None :
+        except (KeyError, TypeError):
             return
-        # sometimes see a 169 address during boot, ignore and wait for a real one
-        if masterip[0:7] == "169.254" :
-            return
-        masterport = str(data['data']['address']['port_ascend'])
-        self._masterurl = "ws://" + masterip + ":" + masterport
 
     async def getroomid(self):
         """Get the Room ID from the master speaker."""
@@ -98,33 +105,37 @@ class DutchDutchApi:
             if data['data'][i]['targetType'] == "room" :
                 self._roomtarget = data['data'][i]['target']
             if data['data'][i]['targetType'] == "device" :
-                if not self._mastertarget == data['data'][i]['target'] :
+                if self._mastertarget != data['data'][i]['target'] :
                     self._slavetarget = data['data'][i]['target']
 
     def buildcmd(self, endpoint, datadict, method = 'update', targettype = None, target = None):
-        """Build command to send in json format, also return uuid in case caller
-        wants to wait for a matching response."""
+        """Build command to send in json format.
+
+        Also return uuid in case caller wants to wait for a matching response.
+        """
+
         myuuid = str(uuid.uuid4())
         jsoncommand = {}
         jsoncommand['meta'] = {}
         jsoncommand['meta']['id'] = myuuid
         jsoncommand['meta']['method'] = method
         jsoncommand['meta']['endpoint'] = endpoint
-        if not targettype is None :
+        if targettype is not None :
             jsoncommand['meta']['targetType'] = targettype
-        if not target is None :
+        if target is not None :
             jsoncommand['meta']['target'] = target
         jsoncommand['data'] = datadict
         return json.dumps(jsoncommand), myuuid
 
     async def async_check_valid(self) -> bool | None:
-        """Check that the supplied host/IP returns something expected and
-        get the master Speaker ID here to allow Zeroconf flow to ignore the
-        other speaker."""
+        """Check that the supplied host/IP returns something expected.
+
+        Get the master Speaker ID here to allow Zeroconf flow to ignore the other speaker.
+        """
 
         resp = await self.get_request("/clerkip.js")
 
-        if not resp is None :
+        if resp is not None :
             # Presumably we have found a D&D device, so try to connect
             if not await self.ws_connect() :
                 return False
@@ -157,7 +168,7 @@ class DutchDutchApi:
             LOGGER.debug("Async listener cancelled")
 
     def lost_connection(self) :
-        """Tidy up if we lose the connection to the device. """
+        """Tidy up if we lose the connection to the device."""
         LOGGER.debug("Lost connection")
         if self._task is not None and not self._task.done():
             self._task.cancel()
@@ -225,13 +236,6 @@ class DutchDutchApi:
             self._preset_ids[prid] = prn
 
         self._preset = self._roomdata['lastSelectedPreset']
-
-        #LOGGER.debug("Streaming: %s, Input %s, XLR %s, Mute %s, Gain %0.2f", \
-        #             self._streaming, \
-        #             self._selected_input, self._selected_xlr, \
-        #             self._roomdata['mute']['global'], \
-        #             self._volume
-        #             )
 
         return True
 
@@ -446,7 +450,7 @@ class DutchDutchApi:
         }
 
     async def async_set_volume_level(self, volume: float) -> None:
-        """Set volume level, range 0..1. converted to -80..0"""
+        """Set volume level, range 0..1. converted to -80..0 ."""
         if not self._extgain :
             gain = (80 * volume) - 80
             gain = min(gain, MAXGAIN)
@@ -582,7 +586,7 @@ class DutchDutchApi:
 
 
     async def get_request(self, suffix=str) -> any | None:
-        """Generic GET method."""
+        """Get data using HTTP GET."""
 
         url = "http://" + self._host + str(suffix)
         try:
@@ -604,7 +608,7 @@ class DutchDutchApi:
             return None
         except asyncio.TimeoutError:
             LOGGER.debug(
-                "GET connection timeout exception."
+                "GET connection timeout exception"
             )
             return None
         except (TypeError, json.JSONDecodeError):
@@ -649,8 +653,10 @@ class DutchDutchApi:
 
 
     async def ws_receive (self, myuuid=str) -> dict | None:
-        """Generic Websocket receive method. If uuid is specified,
-        wait until that one arrives, throwing everything else away."""
+        """Websocket receive method.
+
+        If uuid is specified,wait until that one arrives, throwing everything else away.
+        """
 
         try:
             while True :
