@@ -25,18 +25,23 @@ the "Dutch &amp; Dutch" integration, and just entering a hostname or IPv4 addres
 The integration will always use the identity of the "master" speaker to represent the pair 
 within HA, and will reject the other speaker if you try to configure it as well.
 
-The integration currently needs to be manually installed into the custom_components directory of your 
-Home Assistant installation.  I will be attempting to get it installable via HACS in due course. In 
-the meantime, you will need to have SSH access to your Home Assistant system, and manually execute 
-the following commands, or some equivalent:
+The integration needs to be installed into the custom_components directory of your Home Assistant installation. 
+You can do this via the Home Assistant Community Store (HACS). See: https://www.hacs.xyz/docs/use/download/download/ . 
+An advantage of using HACS over manual installation is that HACS will automatically tell you whenever an update for the integration is available.
 
+Once you have HACS installed, follow the instructions for adding a Custom Repository here: https://www.hacs.xyz/docs/faq/custom_repositories/ . 
+Specify "trevorwarwick/dutchdutch" as the Repo and "Integration" as the type. This will add the integration to the allowed list of downloads within HACS. 
+Then search within HACS for "dutchdutch", and select Download from the three-dot menu. It will tell you which version it's downloading. 
+Then restart Home Assistant, and the integration will find your speakers if or when they are powered up.
+
+Alternatively, to install manually without HACS, you will need to have SSH access to your Home Assistant system. 
+Use wget or curl to download the latest release from https://github.com/trevorwarwick/dutchdutch/releases, and unpack the tar or zip file. 
+The actual files you need for the integration are in the custom_components/dutchdutch directory in the archive, and this is also where 
+they need to end up on your system when you've unpacked the release.
+
+For example:
 ```
 ~ # cd /root/config
-config # mkdir custom_components  # if not already existing
-config # wget https://github.com/trevorwarwick/dutchdutch/archive/refs/heads/main.zip
-config # cd custom_components
-custom_components # unzip ../main.zip
-custom_components # mv dutchdutch-main dutchdutch
 custom_components # ls -l dutchdutch
 -rwxr-xr-x    1 root     root          1070 Dec 14 12:25 __init__.py
 -rwxr-xr-x    1 root     root          3769 Dec 14 12:25 config_flow.py
