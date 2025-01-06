@@ -154,11 +154,13 @@ class DutchDutchApi:
             while True :
                 rxdata = await self.ws_receive(None)
                 if rxdata is not None :
+                    # Look for a notify response with some useful data in it
                     resptype = rxdata['meta']['method']
                     if resptype == "notify" :
                         if rxdata['meta']['type'] == "network" :
-                            self._network_info = rxdata
-                            await self.async_update()
+                            if "state" in rxdata['data'] :
+                                self._network_info = rxdata
+                                await self.async_update()
                 else :
                     # the device went unreachable, so exit
                     LOGGER.debug("Async listener no response - exiting")
@@ -170,10 +172,10 @@ class DutchDutchApi:
     def lost_connection(self) :
         """Tidy up if we lose the connection to the device."""
         LOGGER.debug("Lost connection")
+        self._is_available = False
         if self._task is not None and not self._task.done():
             self._task.cancel()
         self._task = None
-        self._is_available = False
         self._ws_session = None
 
     async def async_update(self) -> bool | None:
@@ -181,7 +183,6 @@ class DutchDutchApi:
 
         # first time through, check it's up and read required initial data. If anything
         # goes wrong here, it will try again on the next poll
-        #if self._network_info is None:
         if not self._is_available:
             # HTTP get to check reachable, and find master
             if not await self.async_check_valid() :
@@ -200,20 +201,25 @@ class DutchDutchApi:
             data = await self.ws_receive(mycmd[1])
             if data is not None and data['meta']['endpoint'] == 'network' :
                 self._network_info = data
-            # from now on, we just listen for change notifications
-            loop = asyncio.get_running_loop()
-            self._task = loop.create_task(self.async_ws_listener())
-            mycmd = self.buildcmd('network', {},
+                # from now on, we just listen for change notifications
+                loop = asyncio.get_running_loop()
+                self._task = loop.create_task(self.async_ws_listener())
+                mycmd = self.buildcmd('network', {},
                                   method = 'subscribe')
-            await self.ws_send_request(mycmd[0])
-            self._is_available = True
+                await self.ws_send_request(mycmd[0])
+                self._is_available = True
 
         # One of the above calls failed
         if not self._is_available:
             return True
 
-        self._roomdata = \
+        # If the expected data isn't there, it's a transient condition and
+        # will be resolved by an overall connection success/failure soon
+        try:
+            self._roomdata = \
             self._network_info['data']['state'][self._roomtarget]['data']
+        except KeyError:
+            return True
 
         self._streaming = self._roomdata['streaming']
         self._sources = self._roomdata['inputModes']
