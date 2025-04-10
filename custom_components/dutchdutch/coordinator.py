@@ -3,12 +3,11 @@
 from datetime import timedelta
 import logging
 
-from .dutchdutch_api import DutchDutchApi
-
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
 from .const import DOMAIN
+from .dutchdutch_api import DutchDutchApi
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -27,15 +26,15 @@ class DutchDutchCoordinator(DataUpdateCoordinator[None]):
             update_interval=SCAN_INTERVAL,
         )
         self.client = client
+        self.client.set_push_callback(self.push_callback)
+
+    async def push_callback(self) -> None:
+        """Call back from client when a push notification is received."""
+        self.async_set_updated_data(True)
 
     async def _async_setup(self) -> None:
-        """Called once at setup time only."""
-        return None
+        """Call once at setup time only."""
 
     async def _async_update_data(self) -> None:
         """Fetch data from API endpoint."""
         await self.client.async_update()
-
-    async def devices_update_callback(self):
-        """Receive callback from api with device update."""
-        return None

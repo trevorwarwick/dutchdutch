@@ -12,8 +12,8 @@ from homeassistant.config_entries import ConfigFlow, ConfigFlowResult
 from homeassistant.const import CONF_HOST, CONF_NAME
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
-from .dutchdutch_api import DutchDutchApi
 from .const import DOMAIN
+from .dutchdutch_api import DutchDutchApi
 
 LOGGER = logging.getLogger(__package__)
 
@@ -37,7 +37,7 @@ class DutchDutchFlowHandler(ConfigFlow, domain=DOMAIN):
 
         self._errors.clear()
         session = async_get_clientsession(self.hass)
-        client = DutchDutchApi(self._host, session)
+        client = DutchDutchApi(self._host, session, None)
 
         if not await client.async_check_valid() or client.serial is None:
             self._errors["base"] = "cannot_connect"
@@ -86,7 +86,7 @@ class DutchDutchFlowHandler(ConfigFlow, domain=DOMAIN):
         self._model = "8c"
 
         session = async_get_clientsession(self.hass)
-        client = DutchDutchApi(self._host, session)
+        client = DutchDutchApi(self._host, session, None)
 
         if not await client.async_check_valid() or client.serial is None:
             self._errors["base"] = "cannot_connect"

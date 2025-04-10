@@ -18,7 +18,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Dutch & Dutch from a config entry."""
     session = async_get_clientsession(hass)
     hass.data.setdefault(DOMAIN, {})[entry.entry_id] = DutchDutchApi(
-        entry.data[CONF_HOST], session
+        entry.data[CONF_HOST], session, None
     )
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)

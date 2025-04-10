@@ -1,4 +1,5 @@
 """Support for Dutch & Dutch speakers."""
+
 from __future__ import annotations
 
 import asyncio
@@ -15,11 +16,12 @@ from .dutchdutch_const import LOGGER, INPUT_TO_SOURCE, MAXGAIN, VALID_STREAMERS
 class DutchDutchApi:
     """Dutch & Dutch API class."""
 
-    def __init__(self, host, session) -> None:
+    def __init__(self, host, session, push_callback) -> None:
         """Initialize the Dutch & Dutch API."""
 
         self._host = host
         self._session = session
+        self._push_callback = push_callback
 
         self._serial = ""
         self._version = ""
@@ -161,6 +163,8 @@ class DutchDutchApi:
                             if "state" in rxdata['data'] :
                                 self._network_info = rxdata
                                 await self.async_update()
+                                if self._push_callback is not None:
+                                    await self._push_callback()
                 else :
                     # the device went unreachable, so exit
                     LOGGER.debug("Async listener no response - exiting")
@@ -177,6 +181,10 @@ class DutchDutchApi:
             self._task.cancel()
         self._task = None
         self._ws_session = None
+
+    def set_push_callback(self, push_callback) -> None:
+        """Provide callback routine for push updates."""
+        self._push_callback = push_callback
 
     async def async_update(self) -> bool | None:
         """Get the latest details from the device."""

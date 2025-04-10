@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-
 from homeassistant.components.media_player import (
     MediaPlayerEntity,
     MediaPlayerEntityFeature,
