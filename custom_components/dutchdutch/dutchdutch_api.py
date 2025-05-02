@@ -75,7 +75,7 @@ class DutchDutchApi:
             for i in range(respcnt):
                 myip = data['data']['address']['ipv4'][i]
                 if bool(re.match(self._ipre, myip)) :
-                    masterip = data['data']['address']['ipv4'][0]
+                    masterip = data['data']['address']['ipv4'][i]
             if masterip is None :
                 return
             # sometimes see a 169 address during boot, ignore and wait for a real one
