@@ -45,6 +45,7 @@ class DutchDutchFlowHandler(ConfigFlow, domain=DOMAIN):
             return None
 
         self._serial = client.serial
+        self._model = self._serial[:2]
         await self.async_set_unique_id(self._serial)
         self._abort_if_unique_id_configured()
 
@@ -83,7 +84,6 @@ class DutchDutchFlowHandler(ConfigFlow, domain=DOMAIN):
 
         self._host = discovery_info.hostname
         self._name = discovery_info.name.split(".", 1)[0]
-        self._model = "8c"
 
         session = async_get_clientsession(self.hass)
         client = DutchDutchApi(self._host, session, None)
@@ -94,6 +94,7 @@ class DutchDutchFlowHandler(ConfigFlow, domain=DOMAIN):
             return self.async_abort(reason="cannot_connect")
 
         self._serial = client.serial
+        self._model = self._serial[:2]
         await self.async_set_unique_id(self._serial)
         self._abort_if_unique_id_configured()
 

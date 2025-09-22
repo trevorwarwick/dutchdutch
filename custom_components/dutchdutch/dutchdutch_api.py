@@ -279,7 +279,7 @@ class DutchDutchApi:
     def model(self) -> str | None:
         """Return the device model."""
         try:
-            return "8c"
+            return self._serial[:2]
         except (KeyError, TypeError):
             return None
 

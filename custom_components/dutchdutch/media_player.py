@@ -75,6 +75,7 @@ class DutchDutchMediaPlayerEntity(
             self.async_write_ha_state()
             return
 
+        self._attr_device_info["sw_version"] = self.coordinator.client.version
         self._attr_volume_level = self.coordinator.client.volume_level
         self._attr_is_volume_muted = self.coordinator.client.is_volume_muted
         self._attr_source_list = self.coordinator.client.source_list
