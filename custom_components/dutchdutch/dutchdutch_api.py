@@ -46,6 +46,8 @@ class DutchDutchApi:
 
         self._roomtarget = ""
         self._masterurl = ""
+        self._ascendurl = ""
+        self._masteraddresses = ""
         self._mastertarget = ""
         self._slavetarget = ""
         self._ipre = re.compile(
@@ -70,6 +72,7 @@ class DutchDutchApi:
             self._mastertarget = data['data']['target']
             # this item contains a variable length list of things, one of which
             # is an IPv4 address.
+            self._masteraddresses = data['data']['address']
             masterip = None
             respcnt = len(data['data']['address']['ipv4'])
             for i in range(respcnt):
@@ -82,6 +85,7 @@ class DutchDutchApi:
             if masterip[0:7] == "169.254" :
                 return
             masterport = str(data['data']['address']['port_ascend'])
+            self._ascendurl = "http://" + masterip
             self._masterurl = "ws://" + masterip + ":" + masterport
 
         except (KeyError, TypeError):
@@ -257,6 +261,14 @@ class DutchDutchApi:
     def is_available(self) -> bool | None:
         """Return available."""
         return self._is_available
+
+    @property
+    def ascendurl(self) -> str | None:
+        """Return the Ascend URL."""
+        try:
+            return self._ascendurl
+        except (KeyError, TypeError):
+            return None
 
     @property
     def serial(self) -> str | None:
@@ -460,6 +472,7 @@ class DutchDutchApi:
             "streaming": self._streaming,
             "volume": self._volume,
             "preset": self._preset,
+            "master addresses": self._masteraddresses,
             "network_info": self._network_info
         }
 

@@ -53,19 +53,27 @@ class DutchDutchMediaPlayerEntity(
 
     _attr_has_entity_name = True
     _attr_name = None
+    _confname = None
+    _connected_once = False
 
     def __init__(self, coordinator: DutchDutchCoordinator, entry: ConfigEntry) -> None:
         """Initialize the Dutch & Dutch device."""
         self.coordinator = coordinator
         super().__init__(coordinator)
 
+        self._confname = entry.data[CONF_NAME]
         self._attr_unique_id = str(entry.unique_id)
+        self._update_device_info()
+
+    def _update_device_info(self) -> None:
+        """Update device info."""
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, self._attr_unique_id)},
             manufacturer=MANUFACTURER,
             model=self.coordinator.client.model,
-            name=entry.data[CONF_NAME],
+            name=self._confname,
             sw_version=self.coordinator.client.version,
+            configuration_url = self.coordinator.client.ascendurl
         )
 
     @callback
@@ -75,7 +83,11 @@ class DutchDutchMediaPlayerEntity(
             self.async_write_ha_state()
             return
 
-        self._attr_device_info["sw_version"] = self.coordinator.client.version
+        if self._connected_once is False:
+            # some interesting info not available until connected
+            self._update_device_info()
+            self._connected_once = True
+
         self._attr_volume_level = self.coordinator.client.volume_level
         self._attr_is_volume_muted = self.coordinator.client.is_volume_muted
         self._attr_source_list = self.coordinator.client.source_list
