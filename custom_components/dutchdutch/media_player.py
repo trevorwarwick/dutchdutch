@@ -67,14 +67,24 @@ class DutchDutchMediaPlayerEntity(
 
     def _update_device_info(self) -> None:
         """Update device info."""
-        self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, self._attr_unique_id)},
-            manufacturer=MANUFACTURER,
-            model=self.coordinator.client.model,
-            name=self._confname,
-            sw_version=self.coordinator.client.version,
-            configuration_url = self.coordinator.client.ascendurl
-        )
+        # HA throws an exception if the URL isn't valid, so make sure it's present
+        if self.coordinator.client.ascendurl != "":
+            self._attr_device_info = DeviceInfo(
+                identifiers={(DOMAIN, self._attr_unique_id)},
+                manufacturer=MANUFACTURER,
+                model=self.coordinator.client.model,
+                name=self._confname,
+                sw_version=self.coordinator.client.version,
+                configuration_url = self.coordinator.client.ascendurl
+            )
+        else:
+            self._attr_device_info = DeviceInfo(
+                identifiers={(DOMAIN, self._attr_unique_id)},
+                manufacturer=MANUFACTURER,
+                model=self.coordinator.client.model,
+                name=self._confname,
+                sw_version=self.coordinator.client.version,
+            )
 
     @callback
     def _handle_coordinator_update(self) -> None:
