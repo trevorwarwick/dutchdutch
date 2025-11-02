@@ -59,5 +59,16 @@ drwxr-xr-x    2 root     root          4096 Dec 13 17:16 translations
 Then restart Home Assistant and go to the Devices page within Settings to find
 or add your speakers.
 
+Example screenshots of HA Media Player card:
+
+With AES input selected:\
+<img width="395" height="151" alt="mediasmall" src="https://github.com/user-attachments/assets/7204dacc-420b-4720-85ba-236fbe0151bb" />
+
+Playing from Spotify directly:\
+<img width="394" height="175" alt="mediaspotty" src="https://github.com/user-attachments/assets/87c9911f-7c30-4734-b404-f4c8ff308a5f" />
+
+Sound mode selection:\
+<img width="584" height="729" alt="medialarge" src="https://github.com/user-attachments/assets/8207c258-b591-4a1b-9a08-703bf8cf2619" />
+
 Credit: The basic structure of this integration was inspired by the devialet integration
 by @fwestenberg
